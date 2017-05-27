@@ -8,11 +8,10 @@ public class TouchJump : MonoBehaviour {
     private int combo = 0;
 
     public Vector2 sit;
-
-    private Vector2 posi;
     public Vector2 dir;
 
-    public float range = 3f;
+    private Rigidbody2D rigid;
+    public float force = 1f;
     public bool sits = false;
     public float speed;
     public GameObject respawner;
@@ -20,9 +19,9 @@ public class TouchJump : MonoBehaviour {
 
     void Start()
     {
+        rigid = GetComponent<Rigidbody2D>();
         respawner = GameObject.FindGameObjectWithTag("Respawn");
         respawn();
-        posi = transform.position;
     }
     
 
@@ -33,9 +32,14 @@ public class TouchJump : MonoBehaviour {
             if (sits) { 
                 transform.position = (Vector2)c.transform.position + sit;
             }
+
             if (Input.touchCount > 0)
+                if (Input.GetTouch(0).phase == TouchPhase.Moved)
+                {
+                    moveToPoint(Input.touches[0].deltaPosition.normalized);
+                }
             {
-                moveToPoint(Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position));
+               // moveToPoint(Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position));
             }
             if (Input.GetMouseButtonDown(0))
             {
@@ -45,14 +49,19 @@ public class TouchJump : MonoBehaviour {
     }
 
     void moveToPoint(Vector2 pos) {
+        if (c) {
+            c.isPlayerSittingOn = false;
+        }
         dir = pos - (Vector2)transform.position;
-        GetComponent<Rigidbody2D>().AddForce(dir, ForceMode2D.Impulse);
+        rigid.AddForce(dir*force, ForceMode2D.Impulse);
         onGround = false;
         sits = false;
     }
     void OnCollisionEnter2D(Collision2D coll) {
         if (coll.gameObject.tag.Equals("Ground"))
         {
+            rigid.velocity = Vector2.zero;
+            rigid.angularVelocity = 0f;
             combo = 0;
             onGround = true;
         }
@@ -63,11 +72,14 @@ public class TouchJump : MonoBehaviour {
         {
             sits = true;
             c = coll.gameObject.GetComponent<Cloud>();
-            if (!c.activated)
+            c.isPlayerSittingOn = true;
+            rigid.velocity = Vector2.zero;
+            rigid.angularVelocity = 0f;
+            if (!c.isUsedBefore)
             {
                 ++combo; 
                 GameManager.points += 100 * combo*c.scoreFactor;
-                c.activated = true;
+                c.isUsedBefore = true;
             }
         }
         if (coll.tag.Equals("Breaker"))

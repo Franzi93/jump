@@ -15,7 +15,7 @@ public class CameraFollow : MonoBehaviour {
         if (toFollow) {
             Vector2 pos = transform.position;
 
-            transform.position = new Vector3(Mathf.Lerp(pos.x, toFollow.transform.position.x, lerp), Mathf.Lerp(pos.y, toFollow.transform.position.y, lerp),-10);
+            transform.position = new Vector3(transform.position.x, Mathf.Lerp(pos.y, toFollow.transform.position.y, lerp),transform.position.z);
         }
 	}
 }

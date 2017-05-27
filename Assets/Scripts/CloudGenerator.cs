@@ -17,7 +17,7 @@ public class CloudGenerator : MonoBehaviour {
 
     void Start() {
         randCloud = new RandomInt(0, clouds.Length - 1);
-        randAmount = new RandomInt(1, 2);
+        randAmount = new RandomInt(1, 10);
 
         
     }
